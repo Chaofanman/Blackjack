@@ -87,13 +87,13 @@ func (player *Player) handleAce() int {
 
 func whoWins(user Player, house Player) {
 	switch {
-	case (user.Score > house.Score && house.Score <= 21) && house.Score > 21:
+	case (user.Score > house.Score && user.Score <= 21) && house.Score > 21:
+		fmt.Println("YOU WIN WIN WIN WIN !")
+	case (user.Score < house.Score && user.Score <= 21) && house.Score > 21:
 		fmt.Println("YOU WIN WIN WIN WIN !")
 	case user.Score > 21:
 		fmt.Println("YOU LOSE LOSE LOSE LOSE")
 	case user.Score < house.Score && house.Score <= 21:
-		fmt.Println("YOU LOSE LOSE LOSE LOSE")
-	case user.Score > 21:
 		fmt.Println("YOU LOSE LOSE LOSE LOSE")
 	case user.Score == house.Score:
 		fmt.Println("Tie")
