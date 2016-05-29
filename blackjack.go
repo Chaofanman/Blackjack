@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"time"
 )
 
 type Card struct {
@@ -52,16 +53,7 @@ func Deal(deck Deck, count *int) (card Card) {
 //which is an array of cards
 func (player *Player) addCard(card Card) []Card {
 	player.Hand = append(player.Hand, card)
-	// if card.Value >= 10 {
-	// 	player.Score += 10
-	// } else if card.Value == 1 {
-	// 	player.Score += player.handleAce()
-	// } else {
-	// 	player.Score += card.Value
-	// }
 	player.Score = player.countScore()
-	// fmt.Printf("Card's value is: %d\n%s's score is: %d\n", card.Value, player.Name, player.Score)
-	// player.Score += Card.Value
 
 	return player.Hand
 }
@@ -78,7 +70,6 @@ func (player *Player) countScore() int {
 			} else {
 				score += player.Hand[i].Value
 			}
-
 		}
 	}
 	return score
@@ -91,24 +82,18 @@ func (player *Player) handleAce() int {
 	} else {
 		score += 1
 	}
-	//fmt.Printf("IN HANDLEACE. SCORE RETURNED IS: %d", score)
 	return score
-}
-
-func contains(player Player, val int) bool {
-	for i := 0; i < len(player.Hand); i++ {
-		if player.Hand[i].Value == val {
-			return true
-		}
-	}
-	return false
 }
 
 func whoWins(user Player, house Player) {
 	switch {
-	case user.Score > house.Score || house.Score > 21:
+	case (user.Score > house.Score && house.Score <= 21) && house.Score > 21:
 		fmt.Println("YOU WIN WIN WIN WIN !")
+	case user.Score > 21:
+		fmt.Println("YOU LOSE LOSE LOSE LOSE")
 	case user.Score < house.Score && house.Score <= 21:
+		fmt.Println("YOU LOSE LOSE LOSE LOSE")
+	case user.Score > 21:
 		fmt.Println("YOU LOSE LOSE LOSE LOSE")
 	case user.Score == house.Score:
 		fmt.Println("Tie")
@@ -116,7 +101,7 @@ func whoWins(user Player, house Player) {
 }
 
 func printState(user Player, house Player) {
-	fmt.Println("You have the: ")
+	fmt.Println("\nYou have the: ")
 	for i := 0; i < len(user.Hand); i++ {
 		//Mimicing %v for Ace, Jack, Queen, and King
 		if user.Hand[i].Value == 1 {
@@ -135,7 +120,7 @@ func printState(user Player, house Player) {
 			fmt.Printf("%v\n", user.Hand[i])
 		}
 	}
-	fmt.Println("House has: ")
+	fmt.Println("\nHouse has: ")
 	//Bad practice
 	for i := 0; i < len(house.Hand); i++ {
 		//Mimicing %v for Ace, Jack, Queen, and King
@@ -155,7 +140,7 @@ func printState(user Player, house Player) {
 			fmt.Printf("%v\n", house.Hand[i])
 		}
 	}
-	fmt.Printf("Your score is: %d\n", user.Score)
+	fmt.Printf("\nYour score is: %d\n", user.Score)
 	fmt.Printf("The House's score is: %d\n", house.Score)
 }
 
@@ -165,7 +150,6 @@ func BLACKJACK(deck Deck, user Player, house Player) {
 	done := false
 
 	for done == false {
-		fmt.Printf("Current count: %d\n", count)
 		if count < 4 {
 			if count%2 == 0 {
 				user.addCard(Deal(deck, &count))
@@ -174,26 +158,47 @@ func BLACKJACK(deck Deck, user Player, house Player) {
 				house.addCard(Deal(deck, &count))
 			}
 		}
+
 		for count >= 4 && count < len(deck) {
 			if done == true {
-				fmt.Println("Done = true")
 				printState(user, house)
 				whoWins(user, house)
 				fmt.Println("=========================")
-				break
+
+				fmt.Println("\nNew game?\nPress 1 to Play again\nPress 2 to Quit")
+				fmt.Scanln(&choice)
+				if choice == 1 {
+					done = false
+					user.Score = 0
+					user.Hand = nil
+					house.Score = 0
+					house.Hand = nil
+
+					user.addCard(Deal(deck, &count))
+					house.addCard(Deal(deck, &count))
+					user.addCard(Deal(deck, &count))
+					house.addCard(Deal(deck, &count))
+
+				} else {
+					break
+				}
 			}
 
 			printState(user, house)
-			fmt.Println("Press 1 to Hit\nPress 2 to Stay")
+			fmt.Println("\nPress 1 to Hit\nPress 2 to Stay")
 			fmt.Scanln(&choice)
 
 			if choice == 1 {
 				user.addCard(Deal(deck, &count))
+				if user.Score > 21 {
+					done = true
+				}
 			}
 			if choice == 2 {
 				// fmt.Printf("house.Score: %d | house.countScore(): %d\n", house.Score, house.countScore())
-				if house.Score < 17 {
+				for house.Score < 17 {
 					house.addCard(Deal(deck, &count))
+					time.Sleep(100 * time.Millisecond)
 				}
 				if house.Score >= 17 {
 					//INNOVATIVE
@@ -215,15 +220,4 @@ func main() {
 
 	BLACKJACK(deck, user, house)
 
-	// user.addCard(Deal(deck, &count))
-	// user.addCard(Deal(deck, &count))
-
-	// user.countScore()
-
-	// fmt.Println(user.Hand)
-	// fmt.Println(user.Score)
-
-	// fmt.Println(house.Hand)
-
-	// whoWins(user, house)
 }
