@@ -52,15 +52,17 @@ func Deal(deck Deck, count *int) (card Card) {
 //which is an array of cards
 func (player *Player) addCard(card Card) []Card {
 	player.Hand = append(player.Hand, card)
-	if card.Value >= 10 {
-		player.Score += 10
-	} else if card.Value == 1 {
-		player.Score += player.handleAce()
-	} else {
-		player.Score += card.Value
-	}
+	// if card.Value >= 10 {
+	// 	player.Score += 10
+	// } else if card.Value == 1 {
+	// 	player.Score += player.handleAce()
+	// } else {
+	// 	player.Score += card.Value
+	// }
+	player.Score = player.countScore()
 	// fmt.Printf("Card's value is: %d\n%s's score is: %d\n", card.Value, player.Name, player.Score)
 	// player.Score += Card.Value
+
 	return player.Hand
 }
 
@@ -68,13 +70,15 @@ func (player *Player) countScore() int {
 	score := 0
 	//Value of Jack, King, Queen is 10
 	for i := 0; i < len(player.Hand); i++ {
-		if player.Hand[i].Value == 1 {
-			score += player.handleAce()
-		}
 		if player.Hand[i].Value >= 10 {
 			score += 10
 		} else {
-			score += player.Hand[i].Value
+			if player.Hand[i].Value == 1 {
+				score += player.handleAce()
+			} else {
+				score += player.Hand[i].Value
+			}
+
 		}
 	}
 	return score
@@ -178,14 +182,17 @@ func BLACKJACK(deck Deck, user Player, house Player) {
 				fmt.Println("=========================")
 				break
 			}
+
 			printState(user, house)
 			fmt.Println("Press 1 to Hit\nPress 2 to Stay")
 			fmt.Scanln(&choice)
+
 			if choice == 1 {
 				user.addCard(Deal(deck, &count))
 			}
 			if choice == 2 {
-				for house.Score < 17 {
+				// fmt.Printf("house.Score: %d | house.countScore(): %d\n", house.Score, house.countScore())
+				if house.Score < 17 {
 					house.addCard(Deal(deck, &count))
 				}
 				if house.Score >= 17 {
