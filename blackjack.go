@@ -195,7 +195,6 @@ func BLACKJACK(deck Deck, user Player, house Player) {
 				}
 			}
 			if choice == 2 {
-				// fmt.Printf("house.Score: %d | house.countScore(): %d\n", house.Score, house.countScore())
 				for house.Score < 17 {
 					house.addCard(Deal(deck, &count))
 					time.Sleep(100 * time.Millisecond)
